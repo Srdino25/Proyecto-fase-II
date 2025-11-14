@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Paqueteria sin nombre | Cotizar Envío</title>
+</head>
+<body>
+    <form id="formRegistro">
+        <div>
+            <h2>Cotizar y Registrar Envío</h2>
+            <span>Paso 1 de 2: Datos del Paquete</span>
+        </div>
+        <hr>
+
+        <fieldset>
+            <legend>1. Datos del Remitente</legend>
+            <label>Nombre Completo *</label><br>
+            <input type="text" id="remitente" required placeholder="Tu nombre"><br><br>
+            
+            <label>Dirección de Recolección *</label><br>
+            <textarea id="dir_remitente" rows="3" required></textarea>
+        </fieldset>
+        <br>
+
+        <fieldset>
+            <legend>2. Datos del Destinatario</legend>
+            <label>Nombre Completo *</label><br>
+            <input type="text" id="destinatario" required placeholder="Quien recibe"><br><br>
+            
+            <label>Dirección de Entrega *</label><br>
+            <textarea id="dir_destino" rows="3" required></textarea>
+        </fieldset>
+        <br>
+
+        <fieldset>
+            <legend>3. Características del Paquete</legend>
+            <label>Peso (kg) *</label><br>
+            <input type="number" id="peso" step="0.1" required><br><br>
+            <label>Dimensiones (cm) *</label><br>
+            Largo: <input type="number" id="largo" style="width:50px" required> x 
+            Ancho: <input type="number" id="ancho" style="width:50px" required> x 
+            Alto: <input type="number" id="alto" style="width:50px" required>
+            <br><br>
+            <label>Tipo de Servicio *</label><br>
+            <select id="servicio">
+                <option value="estandar">Estándar (3-5 días)</option>
+                <option value="express">Express (Día siguiente)</option>
+            </select>
+            <br><br>
+            <button type="button" onclick="calcularManual()">Calcular Precio</button>
+        </fieldset>
+        <br>
+
+        <div style="border: 1px solid black; padding: 10px; background: #f4f4f4;">
+            <h3>Detalle de Costos</h3>
+            <label><strong>Tu Guía (Generada):</strong></label><br>
+            <input type="text" id="guiaGenerada" readonly style="background: #ddd; font-weight: bold;"><br><br>
+            <label><strong>Total a Pagar:</strong></label><br>
+            <input type="text" id="costoCalculado" value="$ 0.00 MXN" readonly style="font-size: 1.2em;">
+        </div>
+        <br>
+
+        <div>
+            <button type="button" onclick="window.location.href='index.html'">Cancelar</button>
+            <button type="button" onclick="irAPagar()">Continuar al Pago -></button>
+        </div>
+    </form>
+
+    <script>
+        window.onload = function() {
+            const randomNum = Math.floor(Math.random() * 900000) + 100000;
+            document.getElementById('guiaGenerada').value = "MX-" + randomNum;
+        };
+
+        function calcularManual() {
+            // (Función de cálculo sin cambios)
+            const peso = parseFloat(document.getElementById('peso').value) || 0;
+            const l = parseFloat(document.getElementById('largo').value) || 0;
+            const a = parseFloat(document.getElementById('ancho').value) || 0;
+            const h = parseFloat(document.getElementById('alto').value) || 0;
+            if(peso === 0 || l === 0 || a === 0 || h === 0){ alert("Por favor llena el peso y las 3 dimensiones."); return; }
+            const servicio = document.getElementById('servicio').value;
+            const tarifaBase = (servicio === 'express') ? 250 : 120;
+            const extraPeso = peso * 15; 
+            const total = tarifaBase + extraPeso;
+            document.getElementById('costoCalculado').value = "$ " + total.toFixed(2) + " MXN";
+        }
+
+        function irAPagar() {
+            // Obtener valores (incluyendo direcciones)
+            const guia = document.getElementById('guiaGenerada').value;
+            const remitente = document.getElementById('remitente').value;
+            const destinatario = document.getElementById('destinatario').value;
+            const costo = document.getElementById('costoCalculado').value;
+            const dims = document.getElementById('largo').value + "x" + document.getElementById('ancho').value + "x" + document.getElementById('alto').value;
+            // *** NUEVOS DATOS ***
+            const dir_remitente = document.getElementById('dir_remitente').value;
+            const dir_destino = document.getElementById('dir_destino').value;
+
+
+            if(remitente === "" || destinatario === "" || dir_remitente === "" || dir_destino === "") {
+                alert("Faltan nombres o direcciones.");
+                return;
+            }
+            if(costo === "$ 0.00 MXN") {
+                alert("Debes calcular el costo primero.");
+                return;
+            }
+
+            // Enviar TODOS los datos por URL
+            const url = "pago.html?" +
+                "guia=" + encodeURIComponent(guia) +
+                "&remitente=" + encodeURIComponent(remitente) +
+                "&destinatario=" + encodeURIComponent(destinatario) +
+                "&costo=" + encodeURIComponent(costo) +
+                "&dims=" + encodeURIComponent(dims) +
+                // *** AÑADIDOS A LA URL ***
+                "&dir_remitente=" + encodeURIComponent(dir_remitente) +
+                "&dir_destino=" + encodeURIComponent(dir_destino);
+
+            window.location.href = url;
+        }
+    </script>
+</body>
+</html>

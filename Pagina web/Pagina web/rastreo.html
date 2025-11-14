@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Paqueteria sin nombre | Estado del Envío</title>
+</head>
+<body>
+    <nav>
+        <strong>Paqueteria sin nombre</strong> | <a href="index.html">Volver al Inicio</a>
+    </nav>
+    <hr>
+    
+    <h2>Estado del Envío</h2>
+
+    <div style="border: 1px solid black; padding: 15px;">
+        <p>Número de Guía:</p>
+        <h3 id="displayGuia">...</h3>
+        
+        <p>Estado Actual:</p>
+        <h3 id="displayEstado" style="color: green;">...</h3>
+
+        <p>Destino:</p>
+        <p id="displayDestino">...</p>
+    </div>
+
+    <br>
+
+    <h3>Historial de Tránsito (Simulación)</h3>
+    <ul id="historial">
+        </ul>
+
+
+    <script>
+        // Función para leer la URL
+        function getParam(name) {
+            const params = new URLSearchParams(window.location.search);
+            return params.get(name) || "No especificado";
+        }
+
+        // Al cargar la página, rellenar los datos
+        window.onload = function() {
+            const guia = getParam('guia');
+            const estado = getParam('estado');
+            const destinatario = getParam('destinatario');
+            const dir_destino = getParam('dir_destino');
+            
+            document.getElementById('displayGuia').innerText = guia;
+            document.getElementById('displayEstado').innerText = estado;
+            document.getElementById('displayDestino').innerText = destinatario + " - " + dir_destino;
+
+            // Simulación de historial basado en el estado
+            const historialLista = document.getElementById('historial');
+            if (estado === "Pagado (En Tránsito)") {
+                historialLista.innerHTML = `
+                    <li>Paquete en centro de distribución regional.</li>
+                    <li>Envío pagado y recolectado.</li>
+                    <li>Guía generada.</li>
+                `;
+            } else {
+                 historialLista.innerHTML = `<li>Guía generada.</li>`;
+            }
+        };
+    </script> </body>
+</html>

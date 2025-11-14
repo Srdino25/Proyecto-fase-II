@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Paqueteria sin nombre | Editar Envío</title>
+</head>
+<body>
+    <h2>Editar Detalles del Envío</h2>
+    <p>Modifique los datos y guarde los cambios.</p>
+    <hr>
+
+    <form onsubmit="guardarCambios(event)">
+        <fieldset>
+            <legend>Información General</legend>
+            <label>Número de Guía:</label><br>
+            <input type="text" id="guia" readonly style="background:#eee;">
+        </fieldset>
+        <br>
+
+        <fieldset>
+            <legend>1. Datos del Remitente</legend>
+            <label>Nombre Completo *</label><br>
+            <input type="text" id="remitente" required><br><br>
+            
+            <label>Dirección de Recolección *</label><br>
+            <textarea id="dir_remitente" rows="3" required></textarea>
+        </fieldset>
+        <br>
+
+        <fieldset>
+            <legend>2. Datos del Destinatario</legend>
+            <label>Nombre Completo *</label><br>
+            <input type="text" id="destinatario" required><br><br>
+            
+            <label>Dirección de Entrega *</label><br>
+            <textarea id="dir_destino" rows="3" required></textarea>
+        </fieldset>
+        <br>
+
+        <button type="button" onclick="window.location.href='dashboard.html'">Cancelar</button>
+        <button type="submit">Guardar Cambios</button>
+    </form>
+
+    <script>
+        // Función para leer la URL
+        function getParam(name) {
+            const params = new URLSearchParams(window.location.search);
+            // Devuelve el valor o una cadena vacía
+            return params.get(name) || ""; 
+        }
+
+        // Al cargar la página, llenar el formulario desde la URL
+        window.onload = function() {
+            // 1. Obtener todos los datos de la URL
+            const guia = getParam('guia');
+            if (!guia) {
+                // Si no hay guía en la URL, no hay nada que editar
+                alert("Error: No se especificó la guía.");
+                window.location.href = 'dashboard.html';
+                return;
+            }
+
+            // 2. Llenar el formulario con los datos de la URL
+            // (Ya no se usa localStorage para leer)
+            document.getElementById('guia').value = guia;
+            document.getElementById('remitente').value = getParam('remitente');
+            document.getElementById('dir_remitente').value = getParam('dir_remitente');
+            document.getElementById('destinatario').value = getParam('destinatario');
+            document.getElementById('dir_destino').value = getParam('dir_destino');
+        };
+
+        // Función para guardar los datos
+        function guardarCambios(e) {
+            e.preventDefault();
+
+            // 1. Obtener la guía (que está bloqueada)
+            const guia = document.getElementById('guia').value;
+
+            // 2. Obtener los datos (costo, dims, estado) que NO se editan en este form
+            // Los leemos de la URL original para no perderlos
+            const costo = getParam('costo');
+            const dims = getParam('dims');
+            const estado = getParam('estado'); // Preservar el estado
+
+            // 3. Construir la URL para dashboard.html (para que "guarde" el envío)
+            const url = "dashboard.html?" +
+                "modo=editar" + // <-- El parámetro clave para ACTUALIZAR
+                "&guia=" + encodeURIComponent(guia) +
+                // Datos actualizados del formulario
+                "&remitente=" + encodeURIComponent(document.getElementById('remitente').value) +
+                "&destinatario=" + encodeURIComponent(document.getElementById('destinatario').value) +
+                "&dir_remitente=" + encodeURIComponent(document.getElementById('dir_remitente').value) + 
+                "&dir_destino=" + encodeURIComponent(document.getElementById('dir_destino').value) +
+                // Datos preservados que leímos de la URL
+                "&costo=" + encodeURIComponent(costo) +
+                "&dims=" + encodeURIComponent(dims) +
+                "&estado=" + encodeURIComponent(estado); 
+                    
+            // 4. Redirigir a dashboard.html
+            // Esto disparará la lógica "if (modo === 'editar')" que añadimos
+            window.location.href = url;
+        }
+    </script>
+</body>
+</html>

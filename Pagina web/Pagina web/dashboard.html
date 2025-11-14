@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Paqueteria sin nombre | Mis Envíos</title>
+</head>
+<body>
+    <div>
+        <h3>Paqueteria sin nombre (Cliente)</h3>
+        <ul>
+            <li><a href="dashboard.html">Mis Envíos</a></li>
+            <li><a href="index.html">Volver al Inicio</a></li>
+        </ul>
+    </div>
+    <hr>
+    <div>
+        <h1>Historial de Mis Envíos</h1>
+        <p>Aquí puedes ver y gestionar los envíos que has registrado.</p>
+        <br>
+        <table border="1" width="100%">
+            <thead>
+                <tr>
+                    <th>No. Guía</th>
+                    <th>Remitente</th>
+                    <th>Destinatario</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody id="tablaEnvios">
+                <tr><td colspan="5">Cargando...</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        function getParam(name) {
+            const params = new URLSearchParams(window.location.search);
+            return params.get(name);
+        }
+
+        window.onload = function() {
+            const nuevaGuia = getParam('guia');
+            const modo = getParam('modo'); 
+            let listaEnvios = JSON.parse(localStorage.getItem('lista_envios')) || [];
+
+            // *** LÓGICA 1: MODO BÚSQUEDA ***
+            if (modo === 'buscar') {
+                const guiaBuscada = nuevaGuia; // El param 'guia' es el que buscamos
+                
+                // Buscamos en la lista que SÍ podemos leer
+                const envio = listaEnvios.find(e => e.guia === guiaBuscada);
+
+                if (envio) {
+                    // ¡Encontrado! Redirigir a rastreo.html
+                    const url = "rastreo.html?" +
+                        "guia=" + encodeURIComponent(envio.guia) +
+                        "&destinatario=" + encodeURIComponent(envio.destinatario) +
+                        "&dir_destino=" + encodeURIComponent(envio.dir_destino) +
+                        "&estado=" + encodeURIComponent(envio.estado);
+                    window.location.href = url;
+                } else {
+                    // No encontrado
+                    alert("Guía no encontrada: " + guiaBuscada + "\nVerifique sus envíos registrados.");
+                    window.location.href = 'dashboard.html'; // Recargar limpio
+                }
+            
+            // *** LÓGICA 2: MODO GUARDAR/EDITAR ***
+            } else if (nuevaGuia) {
+                // (Esta lógica ya la teníamos y está bien)
+                const envioData = {
+                    guia: nuevaGuia, remitente: getParam('remitente') || 'N/A',
+                    destinatario: getParam('destinatario') || 'N/A', costo: getParam('costo') || '$0.00',
+                    dimensiones: getParam('dims') || 'N/A', estado: getParam('estado') || 'Pagado',
+                    dir_remitente: getParam('dir_remitente') || 'N/A', dir_destino: getParam('dir_destino') || 'N/A'
+                };
+                
+                if (modo === 'editar') {
+                    const index = listaEnvios.findIndex(e => e.guia === nuevaGuia);
+                    if (index > -1) { listaEnvios[index] = envioData; } else { listaEnvios.push(envioData); }
+                } else {
+                    listaEnvios.push(envioData);
+                }
+                localStorage.setItem('lista_envios', JSON.stringify(listaEnvios));
+                window.location.href = 'dashboard.html'; // Recargar limpio
+                
+            // *** LÓGICA 3: MODO NORMAL ***
+            } else {
+                cargarEnvios();
+            }
+        };
+
+        // (No necesitamos más la función exportarListaEnvios)
+
+        function cargarEnvios() {
+            // (Función cargarEnvios sin cambios)
+            let listaEnvios = JSON.parse(localStorage.getItem('lista_envios')) || [];
+            let tabla = document.getElementById('tablaEnvios');
+            tabla.innerHTML = ''; 
+            if (listaEnvios.length === 0) {
+                tabla.innerHTML = '<tr><td colspan="5">Aún no has registrado ningún envío.</td></tr>';
+                return;
+            }
+            listaEnvios.forEach(function(envio) {
+                let fila = document.createElement('tr');
+                fila.innerHTML = `
+                    <td>${envio.guia}</td>
+                    <td>${envio.remitente}</td>
+                    <td>${envio.destinatario}</td>
+                    <td>${envio.estado}</td>
+                    <td>
+                        <button onclick="editarEnvio('${envio.guia}')">Editar</button>
+                        <button onclick="cancelarEnvio('${envio.guia}')">Cancelar</button>
+                    </td>
+                `;
+                tabla.appendChild(fila);
+            });
+        }
+
+        function editarEnvio(guia) {
+            // (Función editarEnvio sin cambios)
+            let listaEnvios = JSON.parse(localStorage.getItem('lista_envios')) || [];
+            const envio = listaEnvios.find(e => e.guia === guia);
+            if (!envio) { alert("Error: no se encontraron datos."); return; }
+            const url = "edit.html?" +
+                "guia=" + encodeURIComponent(envio.guia) +
+                "&remitente=" + encodeURIComponent(envio.remitente) +
+                "&destinatario=" + encodeURIComponent(envio.destinatario) +
+                "&costo=" + encodeURIComponent(envio.costo) +
+                "&dims=" + encodeURIComponent(envio.dimensiones) +
+                "&dir_remitente=" + encodeURIComponent(envio.dir_remitente) + 
+                "&dir_destino=" + encodeURIComponent(envio.dir_destino) +
+                "&estado=" + encodeURIComponent(envio.estado);
+            window.location.href = url;
+        }
+
+        function cancelarEnvio(guia) {
+            // (Función cancelarEnvio sin cambios)
+            if (confirm("¿Estás seguro de cancelar el envío " + guia + "?")) {
+                let listaEnvios = JSON.parse(localStorage.getItem('lista_envios'));
+                let listaActualizada = listaEnvios.filter(e => e.guia !== guia);
+                localStorage.setItem('lista_envios', JSON.stringify(listaActualizada));
+                alert("Envío " + guia + " cancelado.");
+                cargarEnvios();
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Paqueteria sin nombre | Envíos y Rastreo</title>
+</head>
+<body>
+    <nav>
+        <strong>Paqueteria sin nombre</strong>
+        &nbsp;|&nbsp;
+        <a href="index.html">Inicio</a> |
+        <a href="dashboard.html">Mis Envíos</a>
+    </nav>
+    <hr>
+
+    <div>
+        <h1>Rastrea tu envío</h1>
+        <p>Ingrese su número de guía para ver el estado.</p>
+        <div>
+            <input type="text" id="guiaInput" placeholder="Ej: MX-123456">
+            <button onclick="redirigirRastreo()">RASTREAR PAQUETE</button>
+        </div>
+    </div>
+
+    <br><hr><br>
+
+    <div>
+        <h2>¿Quieres enviar un paquete?</h2>
+        <p>Cotiza y genera tu guía de envío en línea.</p>
+        <a href="registro.html">
+            <button>REALIZAR NUEVO ENVÍO -></button>
+        </a>
+    </div>
+
+    <script>
+        function redirigirRastreo() {
+            const guiaBuscada = document.getElementById('guiaInput').value;
+            if (!guiaBuscada) {
+                alert("Por favor ingrese un número de guía.");
+                return;
+            }
+
+            // Ya no buscamos aquí.
+            // Solo redirigimos a dashboard.html, que SÍ puede buscar.
+            const url = "dashboard.html?modo=buscar&guia=" + encodeURIComponent(guiaBuscada);
+            window.location.href = url;
+        }
+    </script>
+</body>
+</html>
